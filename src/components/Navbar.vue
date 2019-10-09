@@ -7,19 +7,25 @@
       <v-toolbar-title class="display-1">Goods & Service Tax</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-toolbar-item>
-        <v-btn text large class="white--text">Home</v-btn>
-        <v-btn text large class="white--text">Service</v-btn>
-        <v-btn text large class="white--text">GST Law</v-btn>
-        <v-btn text large class="white--text">Downloads</v-btn>
-        <v-btn text large class="white--text">Search Taxpayer</v-btn>
-        <v-btn text large class="white--text">Help</v-btn>
-        <v-btn text large class="white--text">Contact Us</v-btn>
+      <v-toolbar-item v-for="link in links" :key="link.text" >
+          <v-btn text large class="white--text" router :to="link.route">{{link.text}}</v-btn>
       </v-toolbar-item>
     </v-toolbar>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      links: [
+        {text:"Home", route: '/'},
+        {text:"About Us", route:'/about'},
+        {text:"GST Law", route:'/gst_law'},
+        {text:"Services", route:'/services'},
+        {text:"Register", route:'/register'}
+      ]
+    }
+  }
+};
 </script>

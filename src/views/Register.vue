@@ -14,7 +14,8 @@
                             counter="30"
                             color="indigo darken-4"
                             :error-messages="firstnameErrors" 
-                            label="First Name" 
+                            label="First Name"
+                            prepend-icon="assignment_ind"
                             @input="$v.firstname.$touch()"
                             @blur="$v.firstname.$touch()">
                                 
@@ -26,6 +27,7 @@
                             :error-messages="lastnameErrors" 
                             label="Last Name"
                             color="indigo darken-4"
+                            prepend-icon="assignment_ind"
                             @input="$v.lastname.$touch()"
                             @blur="$v.lastname.$touch()">
                                 
@@ -36,6 +38,7 @@
                             :error-messages="emailErrors"
                             label="E-mail"
                             color="indigo darken-4"
+                            prepend-icon="email"
                             @blur="$v.email.$touch()">
                         </v-text-field>
 
@@ -45,6 +48,7 @@
                             label="Phone Number"
                             counter="10"
                             color="indigo darken-4"
+                            prepend-icon="phone"
                             @blur="$v.contact_no.$touch()">
                         </v-text-field>
 
@@ -53,6 +57,7 @@
                             :error-messages="walletErrors"
                             label="Wallet Address"
                             color="indigo darken-4"
+                            prepend-icon="account_balance_wallet"
                             @input="$v.walletAddress.$touch()"
                             @blur="$v.walletAddress.$touch()">
                         </v-text-field>
@@ -67,10 +72,13 @@
                         >
                             <template v-slot:activator="{on}">
                                 <v-text-field
+                                    :rules="ageRule"
                                     :value="formattedDate"
                                     label="Date of Birth"
                                     hint="DD/MM/YYYY format"
                                     color="indigo darken-4"
+                                    prepend-icon="date_range"
+                                    :error-messages="calErrors"
                                     persistent-hint
                                     readonly
                                     clearable
@@ -90,12 +98,13 @@
                             <v-btn 
                                 x-large class="indigo darken-4 white--text ma-2" 
                                 @click="submit">
-                                Submit
+                                <v-icon left>done</v-icon>Submit
                                 </v-btn>
                             <v-btn 
                                 x-large 
                                 class="indigo darken-4 white--text ma-2" 
                                 @click="clear">
+                                <v-icon left>refresh</v-icon>
                                 Reset Form
                             </v-btn>
                         </div>
@@ -131,6 +140,9 @@ import { required, maxLength, email, alpha, numeric } from 'vuelidate/lib/valida
                 walletAddress: '',
                 date: null,
                 menu1: false,
+                ageRule: [
+                    v => v.substr(v.length - 4) < 2001 || 'Invalid Age'
+                ]
             }
         },
 
@@ -178,8 +190,15 @@ import { required, maxLength, email, alpha, numeric } from 'vuelidate/lib/valida
                 return errors
             },
 
+            // calErrors() {
+            //     const errors = []
+            //     if(!this.$v.picker.$dirty) return errors
+            //     !this.$v.picker.age && errors.push('Invalid Age')
+            //     return errors
+            // },
+
             formattedDate() {
-                return this.date ? format(new Date(this.date), 'do MMM yyyy') : ''
+                return this.date ? format(new Date(this.date), 'dd/MM/yyyy') : ''
             }
         },
 

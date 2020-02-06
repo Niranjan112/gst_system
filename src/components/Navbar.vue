@@ -21,11 +21,9 @@ export default {
       links: [
         {text:"Home", route: '/'},
         {text:"Register", route:'/register'},
-        {text:"GST Law", route:'/gst_law'},
-        {text:"Services", route:'/services'},
-        {text:"About Us", route:'/about'}
+        {text:"About Us", route:'/about_us'}
       ]
-    }
+    },
   }
 };
 </script>

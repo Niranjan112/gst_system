@@ -1,7 +1,6 @@
 pragma solidity ^0.5.0;
-import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol';
 
-contract User {
+contract Gst {
     uint256 public userCount = 0;
     mapping(uint256 => Users) public usersMap;
     struct Users {
@@ -28,11 +27,11 @@ contract User {
             userCount ++;
             usersMap[userCount] = Users(_id, msg.sender, _firstName, _lastname, _balance, _email, _gstNumber, _userType);
     }
-    
+
     function test(uint256 _senderId) public payable{
         usersMap[_senderId].addr.transfer(msg.value);
     }
-    
+
     function transferAmount(uint256 _senderId, uint256 _receiverId) public payable {
         if(keccak256(abi.encodePacked((usersMap[_senderId].userType)))  == keccak256(abi.encodePacked(('wholeseller'))) && keccak256(abi.encodePacked((usersMap[_receiverId].userType)))  == keccak256(abi.encodePacked(('merchant')))) {
             require(

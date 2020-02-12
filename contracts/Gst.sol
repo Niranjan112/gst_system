@@ -8,24 +8,33 @@ contract Gst {
         address payable addr;
         string firstName;
         string lastName;
-        uint256 balance;
         string email;
         string gstNumber;
         string userType;
     }
 
+    event AccountCreated(
+        uint256 id,
+        address payable addr,
+        string firstName,
+        string lastName,
+        string email,
+        string gstNumber,
+        string userType
+    );
+
     function createAccount(
         uint256 _id,
         string memory _firstName,
         string memory _lastname,
-        uint256 _balance,
         string memory _email,
         string memory _gstNumber,
         string memory _userType
     )
         public {
             userCount ++;
-            usersMap[userCount] = Users(_id, msg.sender, _firstName, _lastname, _balance, _email, _gstNumber, _userType);
+            usersMap[userCount] = Users(_id, msg.sender, _firstName, _lastname, _email, _gstNumber, _userType);
+            emit AccountCreated(_id, msg.sender, _firstName, _lastname, _email, _gstNumber, _userType);
     }
 
     function test(uint256 _senderId) public payable{

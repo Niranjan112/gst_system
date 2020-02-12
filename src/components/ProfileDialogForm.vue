@@ -12,26 +12,28 @@
           <v-container>
             <v-row>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field label="Enter your ID" required></v-text-field>
+                <v-text-field label="Enter your ID" v-model="userId" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field label="First Name" hint="Should be alphabet only" required></v-text-field>
+                <v-text-field label="First Name" v-model="firstName" hint="Should be alphabet only" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field label="Last Name" hint="Should be alphabet only"></v-text-field>
+                <v-text-field label="Last Name" v-model="lastName" hint="Should be alphabet only"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="Email" required></v-text-field>
+                <v-text-field label="Email" v-model="email" required></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="GST Number" required></v-text-field>
+                <v-text-field label="GST Number" v-model="gstNumber" required></v-text-field>
               </v-col>
               <v-col cols="12">
                 <v-select
                   :items="['Merchant','Wholeseller','Customer']"
                   label="User Type"
+                  v-model="userType"
                   required
                 ></v-select>
+                {{hi}}
               </v-col>
             </v-row>
           </v-container>
@@ -47,16 +49,29 @@
 </template>
 <script>
 export default {
+  props: ['hide'],
   data() {
     return {
       dialog: false,
+      userId: '',
+      firstName: '',
+      lastName: '',
+      email: '',
+      gstNumber: '',
+      userType: ''
     }
   },
   methods: {
     save () {
-      this.$store.dispatch('connectMetamask')
-      this.$store.dispatch('loadBlockchainData')
-
+      const address = this.$store.getters.user
+      this.$store.dispatch('createProfile',{ userId: this.userId, firstName: this.firstName, lastName: this.lastName, email: this.email, gstNumber: this.gstNumber, userType: this.userType, address: address}).then(
+        this.dialog = false
+      )
+    }
+  },
+  computed: {
+    hi() {
+      return this.hide
     }
   }
 }

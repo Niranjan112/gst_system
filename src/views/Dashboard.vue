@@ -1,20 +1,19 @@
 <template>
   <v-container fluid>
-    <v-row>
-      <v-col cols="12">
-        <h2 class="text-center">Congratulations you are connected to MetaMask {{getAddress}}</h2>
+    <v-row v-if="showProfileForm" align="center" justify="center">
+      <v-col cols="12" align="center" justify="center">
+        <h2 class="my-2 orange--text text--darken-3">Congratulations you are connected to MetaMask</h2>
+        <v-img src="@/assets/tick.png" max-width="50px" max-height="50px"></v-img>
+        <h2 class="my-2 orange--text text--darken-3">{{getAddress}}</h2>
         <v-row align="center" justify="center">
           <v-card max-width="700px">
-            <v-card-title>
+            <v-card-title class="justify-center">
               <span class="headline">Fill your user profile</span>
             </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field label="Enter your ID" v-model="userId" required></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
+                  <v-col cols="12" sm="6">
                     <v-text-field
                       label="First Name"
                       v-model="firstName"
@@ -22,7 +21,7 @@
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6" md="4">
+                  <v-col cols="12" sm="6">
                     <v-text-field
                       label="Last Name"
                       v-model="lastName"
@@ -55,6 +54,12 @@
         </v-row>
       </v-col>
     </v-row>
+    <v-row v-else>
+      <v-col>
+        <h1 class="text-center display-4" style="margin-top: 200px">Welcome,</h1>
+        <h1 class="text-center display-3">{{userAccountDetails.firstName}} {{userAccountDetails.lastName}}</h1>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -62,8 +67,6 @@
 export default {
   data() {
     return {
-      showProfileForm: true,
-      userId: '',
       firstName: '',
       lastName: '',
       email: '',
@@ -73,19 +76,22 @@ export default {
   },
   beforeMount() {
     this.$store.dispatch("connectMetamask");
-    this.$store.dispatch("loadBlockchainData");
+    this.$store.dispatch("loadBlockchainData", { address: this.getAddress });
   },
   computed: {
     getAddress() {
       return this.$store.getters.user
     },
-    getForm() {
+    showProfileForm() {
       return this.$store.getters.showForm
+    },
+    userAccountDetails() {
+      return this.$store.getters.getAccountDetail
     }
   },
   methods: {
     save () {
-      this.$store.dispatch('createProfile',{ userId: this.userId, firstName: this.firstName, lastName: this.lastName, email: this.email, gstNumber: this.gstNumber, userType: this.userType, address: this.getAddress})
+      this.$store.dispatch('createProfile',{firstName: this.firstName, lastName: this.lastName, email: this.email, gstNumber: this.gstNumber, userType: this.userType, address: this.getAddress})
     }
   }
 };

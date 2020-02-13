@@ -9,7 +9,8 @@ export default new Vuex.Store({
   state: {
     user: null,
     gst: null,
-    showForm: true
+    showForm: null,
+    userAccountObject: null
   },
   mutations: {
     setUser(state, account) {
@@ -20,6 +21,9 @@ export default new Vuex.Store({
     },
     showForm(state, boolVal) {
       state.showForm = boolVal
+    },
+    userAccountObject(state, user) {
+      state.userAccountObject = user
     }
   },
   actions: {
@@ -39,7 +43,7 @@ export default new Vuex.Store({
       const accounts = await web3.eth.getAccounts()
       commit('setUser', accounts[0])
     },
-    async loadBlockchainData({ commit }) {
+    async loadBlockchainData({ commit, getters }) {
       const web3 = window.web3
       //Load account
       const networkId = await web3.eth.net.getId()
@@ -49,36 +53,36 @@ export default new Vuex.Store({
         console.log(gst)
         const userCount = await gst.methods.userCount().call()
         console.log(userCount)
-        const loadAccount = await gst.methods.usersMap(0).call()
+        const loadAccount = await gst.methods.usersMap(getters.user).call()
         console.log(loadAccount)
-        if(userCount < 1) {
+        if(userCount < 1 || loadAccount.addr != getters.user) {
           commit('showForm', true)
         }
         else {
           commit('showForm', false)
+          commit('userAccountObject', loadAccount)
         }
       }
       else {
         window.alert('Gst System is on another network')
       }
     },
-    async createProfile(state, payload) {
+    async createProfile({ commit,dispatch }, payload) {
       const web3 = window.web3
       //Load account
       const networkId = await web3.eth.net.getId()
       const networkData = Gst.networks[networkId]
       if(networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
-        gst.methods.createAccount(
-          payload.userId,
+        await gst.methods.createAccount(
           payload.firstName,
           payload.lastName,
           payload.email,
           payload.gstNumber,
           payload.userType
-        ).send({ from: payload.address}).then(
-          console.log('done')
-        )
+        ).send({ from: payload.address })
+        commit('showForm', false)
+        dispatch('loadBlockchainData')
       }
     }
   },
@@ -88,6 +92,9 @@ export default new Vuex.Store({
     },
     showForm(state) {
       return state.showForm
+    },
+    getAccountDetail(state) {
+      return state.userAccountObject
     }
   }
 })

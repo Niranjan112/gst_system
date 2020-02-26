@@ -1,69 +1,100 @@
 <template>
-  <v-container>
+  <v-container fluid>
+    <!-- Profile Form -->
     <div v-if="showProfileForm">
       <v-row align="center" justify="center">
-        <v-col cols="12" align="center" justify="center">
+        <v-col align="center" justify="center" cols="12">
           <h2 class="my-2 orange--text text--darken-3">Congratulations you are connected to MetaMask</h2>
           <v-img src="@/assets/tick.png" max-width="50px" max-height="50px"></v-img>
           <h2 class="my-2 orange--text text--darken-3">{{getAddress}}</h2>
-          <v-row align="center" justify="center">
-            <v-card max-width="700px">
-              <v-card-title class="justify-center">
-                <span class="headline">Fill your user profile</span>
-              </v-card-title>
-              <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12" sm="6">
-                      <v-text-field
-                        label="First Name"
-                        v-model="firstName"
-                        hint="Should be alphabet only"
-                        required
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-text-field
-                        label="Last Name"
-                        v-model="lastName"
-                        hint="Should be alphabet only"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-text-field label="Email" v-model="email" required></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-text-field label="GST Number" v-model="gstNumber" required></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-select
-                        :items="['Merchant','Wholeseller','Customer']"
-                        label="User Type"
-                        v-model="userType"
-                        required
-                      ></v-select>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="dialog = false">Close</v-btn>
-                <v-btn color="blue darken-1" type="submit" text @click="save">Save</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-row>
+          <v-card max-width="700px">
+            <v-card-title class="indigo darken-4 white--text justify-center display-1">
+              <span class="headline">
+                {{this.firstName || this.lastName ? 'Welcome, ' + this.firstName + ' ' + this.lastName :'Fill your user profile'}}
+              </span>
+            </v-card-title>
+            <v-card-text class="indigo lighten-5">
+              <v-container>
+                <v-row>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      label="First Name"
+                      v-model="firstName"
+                      hint="Should be alphabet only"
+                      color="indigo darken-4"
+                      :rules="namesRules"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      label="Last Name"
+                      v-model="lastName"
+                      hint="Should be alphabet only"
+                      color="indigo darken-4"
+                      :rules="namesRules"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                    label="Email"
+                    v-model="email"
+                    color="indigo darken-4"
+                    required
+                    :rules="emailRules"
+                    >
+                    </v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field 
+                      label="GST Number" 
+                      v-model="gstNumber" 
+                      color="indigo darken-4"
+                      :rules="gstRules"
+                      required
+                    >
+                    </v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-select
+                      :items="['Merchant','Wholeseller','Customer']"
+                      label="User Type"
+                      v-model="userType"
+                      color="indigo darken-4"
+                      :rules="[v => !!v || 'User type is required']"
+                      required
+                    ></v-select>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions class="indigo lighten-5">
+              <v-spacer></v-spacer>
+              <v-btn 
+                color="indigo darken-4"
+                large
+                dark
+                type="submit"
+                @click="save"
+                >Save
+                </v-btn>
+            </v-card-actions>
+          </v-card>
         </v-col>
       </v-row>
     </div>
-    <div v-else> 
+    <!-- User Account Details -->
+    <div v-else>
       <v-row class="mt-12">
         <v-col cols="12">
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header class="indigo darken-4 white--text headline">
                 Welcome, {{userAccountDetails.firstName}} {{userAccountDetails.lastName}} ( {{getAddress}} )
-                <template v-slot:actions>
+                <template
+                  v-slot:actions
+                >
                   <v-icon color="white">$expand</v-icon>
                 </template>
               </v-expansion-panel-header>
@@ -90,20 +121,15 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content class="indigo lighten-5">
                 <v-form class="mt-5">
-                  <v-text-field
-                    v-model="receiverAddress"
-                    label="Receiver Address"
-                  ></v-text-field>
+                  <v-text-field v-model="receiverAddress" label="Receiver Address"></v-text-field>
                   <v-select
                     :items="['Cotton','Fabric','Plastic']"
                     label="Material"
                     v-model="material"
+                    :rules="[v => !!v || 'Item is required']"
                     required
                   ></v-select>
-                  <v-text-field
-                    v-model="amount"
-                    label="Amount in ether"
-                  ></v-text-field>
+                  <v-text-field v-model="amount" label="Amount in ether"></v-text-field>
                 </v-form>
                 <v-card v-if="showBill" class="mx-auto green darken-1" max-width="350" outlined>
                   <v-card-text class="text-center white--text">
@@ -134,15 +160,27 @@
 export default {
   data() {
     return {
-      firstName: '',
-      lastName: '',
-      email: '',
-      gstNumber: '',
-      userType: '',
-      receiverAddress: '',
-      amount: '',
+      firstName: "",
+      lastName: "",
+      email: "",
+      gstNumber: "",
+      userType: "",
+      receiverAddress: "",
+      amount: "",
       inset: false,
-      material: '',
+      material: "",
+      namesRules: [
+        v => !!v || 'This field is required',
+        v => /^[a-zA-Z ]{1,30}$/.test(v) || 'Only Alphabet allowed'
+      ],
+      emailRules: [
+        v => !!v || 'E-mail is required',
+        v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+      ],
+      gstRules: [
+        v => !!v || 'GST number is required',
+        v => /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(v) || 'GST number is not valid'
+      ],
       maxwidth: 100
     };
   },
@@ -161,27 +199,33 @@ export default {
       return this.$store.getters.getAccountDetail;
     },
     generateBill() {
-      let totalAmount = 0
-      let gst = 0
-      if (this.material.toLowerCase() === 'cotton') {
-        gst = 20
-        totalAmount = parseInt(this.amount) + ((gst / 100) * this.amount)
+      let totalAmount = 0;
+      let gst = 0;
+      if (this.material.toLowerCase() === "cotton") {
+        gst = 20;
+        totalAmount = parseInt(this.amount) + (gst / 100) * this.amount;
       }
-      if (this.material.toLowerCase() === 'fabric') {
-        gst = 30
-        totalAmount = parseInt(this.amount) + ((gst / 100) * this.amount)
+      if (this.material.toLowerCase() === "fabric") {
+        gst = 30;
+        totalAmount = parseInt(this.amount) + (gst / 100) * this.amount;
       }
-      if (this.material.toLowerCase() === 'plastic') {
-        gst = 40
-        totalAmount = parseInt(this.amount) + ((gst / 100) * this.amount)
+      if (this.material.toLowerCase() === "plastic") {
+        gst = 40;
+        totalAmount = parseInt(this.amount) + (gst / 100) * this.amount;
       }
-      return {receiverAddress: this.receiverAddress, amount: this.amount, material: this.material, totalAmount: totalAmount, gst: gst / 2}
+      return {
+        receiverAddress: this.receiverAddress,
+        amount: this.amount,
+        material: this.material,
+        totalAmount: totalAmount,
+        gst: gst / 2
+      };
     },
     showBill() {
       if (this.receiverAddress && this.amount) {
-        return true
+        return true;
       }
-      return false
+      return false;
     }
   },
   methods: {

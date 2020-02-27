@@ -50,11 +50,13 @@ export default new Vuex.Store({
       const networkData = Gst.networks[networkId]
       if(networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
-        console.log(gst)
         const userCount = await gst.methods.userCount().call()
-        console.log(userCount)
         const loadAccount = await gst.methods.usersMap(getters.user).call()
-        console.log(loadAccount)
+        let arr = []
+        for( let i = 101 ; i <= 103; i++) {
+          arr.push(await gst.methods.billMap(i).call())
+        }
+        console.log(arr[0].receiverAddress)
         if(userCount < 1 || loadAccount.addr != getters.user) {
           commit('showForm', true)
         }
@@ -74,6 +76,7 @@ export default new Vuex.Store({
       const networkData = Gst.networks[networkId]
       if(networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
+        console.log(payload, payload.lastName)
         await gst.methods.createAccount(
           payload.firstName,
           payload.lastName,
@@ -83,6 +86,22 @@ export default new Vuex.Store({
         ).send({ from: payload.address })
         commit('showForm', false)
         dispatch('loadBlockchainData')
+      }
+    },
+    async createBill({ commit }, payload) {
+      const web3 = window.web3
+      //Load account
+      const networkId = await web3.eth.net.getId()
+      const networkData = Gst.networks[networkId]
+      if(networkData) {
+        const gst = new web3.eth.Contract(Gst.abi, networkData.address)
+        console.log(payload)
+        commit('showForm', false)
+        await gst.methods.generateBill(
+          payload.receiverAddress,
+          payload.material,
+          payload.amount
+        ).send({ from: payload.address})
       }
     }
   },

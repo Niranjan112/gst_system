@@ -87,7 +87,7 @@
     <!-- User Account Details -->
     <div v-else>
       <v-row class="mt-12">
-        <v-col cols="12">
+        <v-col>
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header class="indigo darken-4 white--text headline">
@@ -121,7 +121,12 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content class="indigo lighten-5">
                 <v-form class="mt-5">
-                  <v-text-field v-model="receiverAddress" label="Receiver Address"></v-text-field>
+                  <v-text-field 
+                    v-model="receiverAddress"
+                    label="Receiver Address"
+                    :rules="addressRules"
+                  >
+                  </v-text-field>
                   <v-select
                     :items="['Cotton','Fabric','Plastic']"
                     label="Material"
@@ -129,8 +134,12 @@
                     :rules="[v => !!v || 'Item is required']"
                     required
                   ></v-select>
-                  <v-text-field v-model="amount" label="Amount in ether"></v-text-field>
-                </v-form>
+                  <v-text-field
+                    v-model="amount"
+                    label="Amount in ether"
+                    :rules="[v => !!v || 'Amount is required']"
+                    required
+                  ></v-text-field>
                 <v-card v-if="showBill" class="mx-auto green darken-1" max-width="350" outlined>
                   <v-card-text class="text-center white--text">
                     <p class="title">Receiver Bill</p>
@@ -143,9 +152,13 @@
                       <p>SGST: {{generateBill.gst}}%</p>
                     </div>
                     <v-divider :inset="inset" class="white mx-3"></v-divider>
-                    <p class="title mt-4">Total Amount: {{generateBill.totalAmount}}</p>
+                    <p class="title mt-4">Total Amount: {{generateBill.totalAmount}} ETH</p>
                   </v-card-text>
                 </v-card>
+                <div class="text-center">
+                  <v-btn class="indigo darken-4 mt-5" dark large @click="sendBill" type="submit">Send Bill</v-btn>
+                </div>
+                </v-form>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -180,6 +193,9 @@ export default {
       gstRules: [
         v => !!v || 'GST number is required',
         v => /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(v) || 'GST number is not valid'
+      ],
+      addressRules: [
+        v => /^0x[a-fA-F0-9]{40}$/.test(v) || 'Address is not valid'
       ],
       maxwidth: 100
     };
@@ -229,7 +245,7 @@ export default {
     }
   },
   methods: {
-    save() {
+    save () {
       this.$store.dispatch("createProfile", {
         firstName: this.firstName,
         lastName: this.lastName,
@@ -237,7 +253,15 @@ export default {
         gstNumber: this.gstNumber,
         userType: this.userType,
         address: this.getAddress
-      });
+      })
+    },
+    sendBill () {
+      this.$store.dispatch("createBill", {
+        receiverAddress: this.receiverAddress,
+        material: this.material,
+        amount: this.amount,
+        address: this.getAddress
+      })
     }
   }
 };

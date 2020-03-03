@@ -13,19 +13,21 @@ contract Gst {
         string gstNumber;
         string userType;
     }
-    
+
     struct Bill {
         uint256 id;
         address receiverAddress;
         string materialSelected;
         string totalAmount;
+        address billIssuer;
     }
-    
+
     event BillCreated (
         uint256 id,
         address receiverAddress,
         string materialSelected,
-        string totalAmount
+        string totalAmount,
+        address billIssuer
     );
 
     event AccountCreated(
@@ -49,15 +51,16 @@ contract Gst {
             usersMap[msg.sender] = Users(msg.sender, _firstName, _lastname, _email, _gstNumber, _userType);
             emit AccountCreated(msg.sender, _firstName, _lastname, _email, _gstNumber, _userType);
     }
-    
+
     function generateBill(
         address _receiverAddress,
         string memory _materialSelected,
-        string memory _totalAmount
+        string memory _totalAmount,
+        address _billIssuer
         ) public {
         billCount ++;
-        billMap[billCount] = Bill(billCount, _receiverAddress, _materialSelected, _totalAmount);
-        emit BillCreated(billCount, _receiverAddress, _materialSelected, _totalAmount);
+        billMap[billCount] = Bill(billCount, _receiverAddress, _materialSelected, _totalAmount, _billIssuer);
+        emit BillCreated(billCount, _receiverAddress, _materialSelected, _totalAmount, _billIssuer);
     }
 
     function test(address _receiver) public payable{
@@ -67,8 +70,8 @@ contract Gst {
     function transferAmount(address _receiverAddress) public payable {
         require(
             usersMap[msg.sender].addr == msg.sender && 
-            keccak256(abi.encodePacked((usersMap[msg.sender].userType)))  == keccak256(abi.encodePacked(('wholeseller'))) && 
-            keccak256(abi.encodePacked((usersMap[_receiverAddress].userType)))  == keccak256(abi.encodePacked(('merchant')))
+            keccak256(abi.encodePacked((usersMap[msg.sender].userType))) == keccak256(abi.encodePacked(('wholeseller'))) && 
+            keccak256(abi.encodePacked((usersMap[_receiverAddress].userType))) == keccak256(abi.encodePacked(('merchant')))
         );
             usersMap[_receiverAddress].addr.transfer(msg.value);
     }

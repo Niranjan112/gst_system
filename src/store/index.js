@@ -10,7 +10,9 @@ export default new Vuex.Store({
     user: null,
     gst: null,
     showForm: null,
-    userAccountObject: null
+    userAccountObject: null,
+    snackbar: null,
+    billObject: null
   },
   mutations: {
     setUser(state, account) {
@@ -24,6 +26,12 @@ export default new Vuex.Store({
     },
     userAccountObject(state, user) {
       state.userAccountObject = user
+    },
+    setSnackbar(state, snackValue) {
+      state.snackbar = snackValue
+    },
+    setBillObject(state, bill) {
+      state.billObject = bill
     }
   },
   actions: {
@@ -51,18 +59,25 @@ export default new Vuex.Store({
       if(networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
         const userCount = await gst.methods.userCount().call()
+        const billCount = await gst.methods.billCount().call()
         const loadAccount = await gst.methods.usersMap(getters.user).call()
         let arr = []
-        for( let i = 101 ; i <= 103; i++) {
+        for( let i = 101 ; i <= billCount; i++) {
           arr.push(await gst.methods.billMap(i).call())
         }
-        console.log(arr[0].receiverAddress)
+        if (arr) {
+          var filteredBill = arr.filter( el => {
+            return el.receiverAddress === loadAccount.addr
+          })
+        }
+        console.log(filteredBill)
+        commit('setBillObject', filteredBill)
         if(userCount < 1 || loadAccount.addr != getters.user) {
           commit('showForm', true)
         }
         else {
-          commit('showForm', false)
           commit('userAccountObject', loadAccount)
+          commit('showForm', false)
         }
       }
       else {
@@ -95,13 +110,18 @@ export default new Vuex.Store({
       const networkData = Gst.networks[networkId]
       if(networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
-        console.log(payload)
         commit('showForm', false)
-        await gst.methods.generateBill(
+        let bill = await gst.methods.generateBill(
           payload.receiverAddress,
           payload.material,
-          payload.amount
+          payload.amount,
+          payload.address
         ).send({ from: payload.address})
+
+        if(bill) {
+          commit('setSnackbar', true)
+          bill = null
+        }
       }
     }
   },
@@ -114,6 +134,12 @@ export default new Vuex.Store({
     },
     getAccountDetail(state) {
       return state.userAccountObject
+    },
+    getSnackbar(state) {
+      return state.snackbar
+    },
+    getBillObject(state) {
+      return state.billObject
     }
   }
 })

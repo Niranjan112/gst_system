@@ -114,7 +114,8 @@ export default new Vuex.Store({
         let bill = await gst.methods.generateBill(
           payload.receiverAddress,
           payload.material,
-          payload.amount,
+          payload.beforeGstAmount,
+          payload.afterGstAmount,
           payload.address
         ).send({ from: payload.address})
 
@@ -122,6 +123,21 @@ export default new Vuex.Store({
           commit('setSnackbar', true)
           bill = null
         }
+      }
+    },
+    async payBill({ commit }, payload ) {
+      const web3 = window.web3
+      //Load account
+      const networkId = await web3.eth.net.getId()
+      const networkData = Gst.networks[networkId]
+
+      if(networkData) {
+        const gst = new web3.eth.Contract(Gst.abi, networkData.address)
+        commit('showForm', false)
+        console.log(payload)
+        await gst.methods.test(
+          payload.billIssuer
+        ).send({ from: payload.amountSender, value: payload.amount })
       }
     }
   },

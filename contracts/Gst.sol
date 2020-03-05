@@ -18,7 +18,8 @@ contract Gst {
         uint256 id;
         address receiverAddress;
         string materialSelected;
-        string totalAmount;
+        string beforeGstAmount;
+        string afterGstAmount;
         address billIssuer;
     }
 
@@ -26,7 +27,8 @@ contract Gst {
         uint256 id,
         address receiverAddress,
         string materialSelected,
-        string totalAmount,
+        string beforeGstAmount,
+        string afterGstAmount,
         address billIssuer
     );
 
@@ -55,12 +57,13 @@ contract Gst {
     function generateBill(
         address _receiverAddress,
         string memory _materialSelected,
-        string memory _totalAmount,
+        string memory _beforeGstAmount,
+        string memory _afterGstAmount,
         address _billIssuer
         ) public {
         billCount ++;
-        billMap[billCount] = Bill(billCount, _receiverAddress, _materialSelected, _totalAmount, _billIssuer);
-        emit BillCreated(billCount, _receiverAddress, _materialSelected, _totalAmount, _billIssuer);
+        billMap[billCount] = Bill(billCount, _receiverAddress, _materialSelected, _beforeGstAmount, _afterGstAmount, _billIssuer);
+        emit BillCreated(billCount, _receiverAddress, _materialSelected, _beforeGstAmount, _afterGstAmount, _billIssuer);
     }
 
     function test(address _receiver) public payable{

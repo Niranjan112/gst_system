@@ -114,6 +114,7 @@
           </v-expansion-panels>
         </v-col>
       </v-row>
+      <!-- Generate Bill section -->
       <v-row style="maxWidth: 100%;">
         <v-col cols="12" sm="6" v-show="!(userAccountDetails.userType == 'Customer')">
           <v-expansion-panels>
@@ -192,19 +193,20 @@
                   class="mt-5"
                 >
                   <v-row align="center" justify="center">
-                    <v-col cols="8" sm="8">
+                    <v-col cols="9" sm="9">
                       <v-treeview
                         dark
                         class="red darken-2 subtitle-1" 
-                        :items="[{id: bill.id, name: bill.materialSelected, children: [{name: 'From : ' + bill.billIssuer }, {name: 'Material : ' + bill.materialSelected }, {name: 'Total Amount : ' + bill.totalAmount + ' ETH' }]}]"
+                        :items="[{id: bill.id, name: bill.materialSelected, children: [{name: 'From : ' + bill.billIssuer }, {name: 'Material : ' + bill.materialSelected }, {name: 'Total Amount : ' + bill.afterGstAmount + ' ETH' }]}]"
                       >
                       </v-treeview>
                     </v-col>
-                    <v-col cols="4" sm="4">
+                    <v-col cols="3" sm="3">
                       <v-chip
                         color="green"
                         text-color="white"
-                        @click="payAmount(bill.totalAmount)"
+                        class="ml-3"
+                        @click="payAmount(bill.beforeGstAmount, bill.billIssuer, bill.receiverAddress)"
                       >
                         Pay Now 
                       </v-chip>
@@ -245,7 +247,6 @@ export default {
       snackbar: false,
       billObject: null,
       expand: false,
-      borderRadius: 25,
       namesRules: [
         v => !!v || "This field is required",
         v => /^[a-zA-Z ]{1,30}$/.test(v) || "Only Alphabet allowed"
@@ -328,13 +329,15 @@ export default {
       this.$store.dispatch("createBill", {
         receiverAddress: this.receiverAddress,
         material: this.material,
-        amount: this.generateBill.totalAmount.toString(),
+        beforeGstAmount: this.amount.toString(),
+        afterGstAmount: this.generateBill.totalAmount.toString(),
         address: this.getAddress
       });
       this.$refs.billForm.reset()
     },
-    payAmount (amount) {
-      console.log(amount)
+    payAmount (amount, billIssuer, amountSender) {
+      console.log({amount: window.web3.utils.toWei(amount,'Ether'), billIssuer: billIssuer, amountSender: amountSender})
+      this.$store.dispatch('payBill', {amount: window.web3.utils.toWei(amount,'Ether'), billIssuer: billIssuer, amountSender: amountSender})
     }
   }
 };

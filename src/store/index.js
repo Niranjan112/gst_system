@@ -10,7 +10,7 @@ export default new Vuex.Store({
     user: null,
     gst: null,
     showForm: null,
-    userAccountObject: null,
+    currentUserObject: null,
     snackbar: null,
     billObject: null
   },
@@ -24,8 +24,8 @@ export default new Vuex.Store({
     showForm(state, boolVal) {
       state.showForm = boolVal
     },
-    userAccountObject(state, user) {
-      state.userAccountObject = user
+    currentUserObject(state, user) {
+      state.currentUserObject = user
     },
     setSnackbar(state, snackValue) {
       state.snackbar = snackValue
@@ -76,7 +76,7 @@ export default new Vuex.Store({
           commit('showForm', true)
         }
         else {
-          commit('userAccountObject', loadAccount)
+          commit('currentUserObject', loadAccount)
           commit('showForm', false)
         }
       }
@@ -148,8 +148,8 @@ export default new Vuex.Store({
     showForm(state) {
       return state.showForm
     },
-    getAccountDetail(state) {
-      return state.userAccountObject
+    getCurrentAccountDetails(state) {
+      return state.currentUserObject
     },
     getSnackbar(state) {
       return state.snackbar

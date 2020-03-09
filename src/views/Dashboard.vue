@@ -61,7 +61,7 @@
                     </v-col>
                     <v-col cols="12">
                       <v-select
-                        :items="['Merchant','Wholeseller','Customer']"
+                        :items="['Manufacturer','Wholesaler','Customer']"
                         label="User Type"
                         v-model="userType"
                         color="indigo darken-4"
@@ -96,7 +96,7 @@
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header class="indigo darken-4 white--text headline">
-                Welcome, {{userAccountDetails.firstName}} {{userAccountDetails.lastName}} ( {{getAddress}} )
+                Welcome, {{currentUserAccountDetails.firstName}} {{currentUserAccountDetails.lastName}} ( {{getAddress}} )
                 <template
                   v-slot:actions
                 >
@@ -105,9 +105,9 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content class="indigo lighten-5">
                 <v-row class="title text-center">
-                  <v-col cols="12" sm="4">Email ID: {{userAccountDetails.email}}</v-col>
-                  <v-col cols="12" sm="4">GST Number: {{userAccountDetails.gstNumber}}</v-col>
-                  <v-col cols="12" sm="4">User Type: {{userAccountDetails.userType}}</v-col>
+                  <v-col cols="12" sm="4">Email ID: {{currentUserAccountDetails.email}}</v-col>
+                  <v-col cols="12" sm="4">GST Number: {{currentUserAccountDetails.gstNumber}}</v-col>
+                  <v-col cols="12" sm="4">User Type: {{currentUserAccountDetails.userType}}</v-col>
                 </v-row>
               </v-expansion-panel-content>
             </v-expansion-panel>
@@ -116,7 +116,7 @@
       </v-row>
       <!-- Generate Bill section -->
       <v-row style="maxWidth: 100%;">
-        <v-col cols="12" sm="6" v-show="!(userAccountDetails.userType == 'Customer')">
+        <v-col cols="12" sm="6" v-show="!(currentUserAccountDetails.userType == 'Customer')">
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header class="indigo darken-4 white--text headline">
@@ -127,6 +127,14 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content class="indigo lighten-5">
                 <v-form class="mt-5" v-model="isBillFormValid" ref="billForm">
+                  <v-select
+                    :items="billID"
+                    label="Bill ID"
+                    v-model="billSelect"
+                    :rules="[v => !!v || 'Item is required']"
+                    v-if="currentUserAccountDetails.userType === 'Wholesaler'"
+                    required
+                  ></v-select>
                   <v-text-field
                     v-model="receiverAddress"
                     label="Receiver Address"
@@ -137,6 +145,7 @@
                     label="Material"
                     v-model="material"
                     :rules="[v => !!v || 'Item is required']"
+                    v-if="currentUserAccountDetails.userType === 'Manufacturer'"
                     required
                   ></v-select>
                   <v-text-field
@@ -145,7 +154,7 @@
                     :rules="[v => !!v || 'Amount is required']"
                     required
                   ></v-text-field>
-                  <v-card v-if="showBill" class="mx-auto green darken-1" max-width="350" outlined>
+                  <v-card v-if="showBill && currentUserAccountDetails.userType === 'Manufacturer'" class="mx-auto green darken-1" max-width="350" outlined>
                     <v-card-text class="text-center white--text">
                       <p class="title">Receiver Bill</p>
                       <v-divider :inset="inset" class="white mx-3"></v-divider>
@@ -153,6 +162,21 @@
                         <p>Receiver Address: {{generateBill.receiverAddress}}</p>
                         <p>Material Selected: {{generateBill.material}}</p>
                         <p>Amount: {{generateBill.amount}}</p>
+                        <p>CGST: {{generateBill.gst}}%</p>
+                        <p>SGST: {{generateBill.gst}}%</p>
+                      </div>
+                      <v-divider :inset="inset" class="white mx-3"></v-divider>
+                      <p class="title mt-4">Total Amount: {{generateBill.totalAmount}} ETH</p>
+                    </v-card-text>
+                  </v-card>
+                  <v-card v-if="showBill && currentUserAccountDetails.userType === 'Wholesaler'" class="mx-auto green darken-1" max-width="350" outlined>
+                    <v-card-text class="text-center white--text">
+                      <p class="title">Receiver Bill</p>
+                      <v-divider :inset="inset" class="white mx-3"></v-divider>
+                      <div class="text-center white--text mt-5 subtitle-1">
+                        <p>Receiver Address: {{receiverAddress}}</p>
+                        <p>Material Selected: {{getSelectedBill.materialSelected}}</p>
+                        <p>Amount: {{amount}}</p>
                         <p>CGST: {{generateBill.gst}}%</p>
                         <p>SGST: {{generateBill.gst}}%</p>
                       </div>
@@ -247,6 +271,7 @@ export default {
       snackbar: false,
       billObject: null,
       expand: false,
+      billSelect: '',
       namesRules: [
         v => !!v || "This field is required",
         v => /^[a-zA-Z ]{1,30}$/.test(v) || "Only Alphabet allowed"
@@ -278,21 +303,21 @@ export default {
     showProfileForm() {
       return this.$store.getters.showForm;
     },
-    userAccountDetails() {
-      return this.$store.getters.getAccountDetail;
+    currentUserAccountDetails() {
+      return this.$store.getters.getCurrentAccountDetails;
     },
     generateBill() {
       let totalAmount = 0;
       let gst = 0;
-      if (this.material.toLowerCase() === "cotton") {
+      if (this.material.toLowerCase() === "cotton" || this.getSelectedBill.materialSelected.toLowerCase() === "cotton") {
         gst = 20;
         totalAmount = parseInt(this.amount) + (gst / 100) * this.amount;
       }
-      if (this.material.toLowerCase() === "fabric") {
+      if (this.material.toLowerCase() === "fabric"  || this.getSelectedBill.materialSelected.toLowerCase() === "fabric") {
         gst = 30;
         totalAmount = parseInt(this.amount) + (gst / 100) * this.amount;
       }
-      if (this.material.toLowerCase() === "plastic") {
+      if (this.material.toLowerCase() === "plastic"  || this.getSelectedBill.materialSelected.toLowerCase() === "plastic") {
         gst = 40;
         totalAmount = parseInt(this.amount) + (gst / 100) * this.amount;
       }
@@ -312,6 +337,22 @@ export default {
     },
     getBillObject() {
       return this.$store.getters.getBillObject;
+    },
+    billID() {
+      let arr = []
+      this.$store.getters.getBillObject.forEach((bill) => {
+        arr.push(bill.id)
+      })
+      return arr
+    },
+    getSelectedBill() {
+      let bill
+      this.$store.getters.getBillObject.forEach((billData) => {
+        if(parseInt(this.billSelect) === parseInt(billData.id)) {
+          bill =  billData
+        }
+      })
+      return bill
     }
   },
   methods: {

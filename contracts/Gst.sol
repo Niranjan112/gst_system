@@ -1,11 +1,14 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.1;
+pragma experimental ABIEncoderV2;
 
 contract Gst {
-    uint256 public userCount = 0;
+    uint256 public userCount = 2000;
     uint256 public billCount = 100;
     mapping(address => Users) public usersMap;
     mapping(uint256 => Bill) public billMap;
+    string[2] public gstAmountValue;
     struct Users {
+        uint256 id;
         address payable addr;
         string firstName;
         string lastName;
@@ -20,6 +23,8 @@ contract Gst {
         string materialSelected;
         string beforeGstAmount;
         string afterGstAmount;
+        string[] gstAmount;
+        string gstPercent;
         address billIssuer;
     }
 
@@ -29,10 +34,13 @@ contract Gst {
         string materialSelected,
         string beforeGstAmount,
         string afterGstAmount,
+        string[] gstAmount,
+        string gstPercent,
         address billIssuer
     );
 
     event AccountCreated(
+        uint256 id,
         address payable addr,
         string firstName,
         string lastName,
@@ -50,8 +58,26 @@ contract Gst {
         )
         public {
             userCount ++;
-            usersMap[msg.sender] = Users(msg.sender, _firstName, _lastname, _email, _gstNumber, _userType);
-            emit AccountCreated(msg.sender, _firstName, _lastname, _email, _gstNumber, _userType);
+
+            usersMap[msg.sender] = Users(
+                userCount,
+                msg.sender,
+                _firstName,
+                _lastname,
+                _email,
+                _gstNumber,
+                _userType
+                );
+
+            emit AccountCreated(
+                userCount,
+                msg.sender,
+                _firstName,
+                _lastname,
+                _email,
+                _gstNumber,
+                _userType
+                );
     }
 
     function generateBill(
@@ -59,23 +85,41 @@ contract Gst {
         string memory _materialSelected,
         string memory _beforeGstAmount,
         string memory _afterGstAmount,
+        string[] memory _gstAmount,
+        string memory _gstPercent,
         address _billIssuer
-        ) public {
-        billCount ++;
-        billMap[billCount] = Bill(billCount, _receiverAddress, _materialSelected, _beforeGstAmount, _afterGstAmount, _billIssuer);
-        emit BillCreated(billCount, _receiverAddress, _materialSelected, _beforeGstAmount, _afterGstAmount, _billIssuer);
+        )
+        public {
+            billCount ++;
+
+            billMap[billCount] = Bill(
+                billCount,
+                _receiverAddress,
+                _materialSelected,
+                _beforeGstAmount,
+                _afterGstAmount,
+                _gstAmount,
+                _gstPercent,
+                _billIssuer
+                );
+
+            emit BillCreated(
+                billCount,
+                _receiverAddress,
+                _materialSelected,
+                _beforeGstAmount,
+                _afterGstAmount,
+                _gstAmount,
+                _gstPercent,
+                _billIssuer
+                );
     }
 
     function test(address _receiver) public payable{
         usersMap[_receiver].addr.transfer(msg.value);
     }
 
-    function transferAmount(address _receiverAddress) public payable {
-        require(
-            usersMap[msg.sender].addr == msg.sender && 
-            keccak256(abi.encodePacked((usersMap[msg.sender].userType))) == keccak256(abi.encodePacked(('wholeseller'))) && 
-            keccak256(abi.encodePacked((usersMap[_receiverAddress].userType))) == keccak256(abi.encodePacked(('merchant')))
-        );
-            usersMap[_receiverAddress].addr.transfer(msg.value);
+    function test2(uint256 _billId) public view returns(string[] memory) {
+        return billMap[_billId].gstAmount;
     }
 }

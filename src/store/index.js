@@ -65,6 +65,12 @@ export default new Vuex.Store({
         for( let i = 101 ; i <= billCount; i++) {
           arr.push(await gst.methods.billMap(i).call())
         }
+        gst.methods.test2(104).call().then(r => {
+          console.log(r)
+        })
+        // gst.methods.gstAmountValue(1).call().then(r => {
+        //   console.log(r)
+        // })
         if (arr) {
           var filteredBill = arr.filter( el => {
             return el.receiverAddress === loadAccount.addr
@@ -111,11 +117,14 @@ export default new Vuex.Store({
       if(networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
         commit('showForm', false)
+        console.log(payload.gstAmount)
         let bill = await gst.methods.generateBill(
           payload.receiverAddress,
           payload.material,
           payload.beforeGstAmount,
           payload.afterGstAmount,
+          payload.gstAmount,
+          payload.gstPercent,
           payload.address
         ).send({ from: payload.address})
 

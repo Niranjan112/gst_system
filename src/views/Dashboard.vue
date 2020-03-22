@@ -169,13 +169,14 @@
                       <p class="title mt-4">Total Amount: {{generateBill.totalAmount}} ETH</p>
                     </v-card-text>
                   </v-card>
+                  <!-- Wholesaler's bill section -->
                   <v-card v-if="showBill && currentUserAccountDetails.userType === 'Wholesaler'" class="mx-auto green darken-1" max-width="350" outlined>
                     <v-card-text class="text-center white--text">
                       <p class="title">Receiver Bill</p>
                       <v-divider :inset="inset" class="white mx-3"></v-divider>
                       <div class="text-center white--text mt-5 subtitle-1">
                         <p>Receiver Address: {{receiverAddress}}</p>
-                        <p>Material Selected: {{getSelectedBill.materialSelected}}</p>
+                        <p>Material Selected: {{this.material = getSelectedBill.materialSelected}}</p>
                         <p>Amount: {{amount}}</p>
                         <p>CGST: {{generateBill.gst}}%</p>
                         <p>SGST: {{generateBill.gst}}%</p>
@@ -199,6 +200,7 @@
             </v-expansion-panel>
           </v-expansion-panels>
         </v-col>
+        <!-- Pending bill section -->
         <v-col cols="12" sm="6">
           <v-expansion-panels>
             <v-expansion-panel>
@@ -309,17 +311,33 @@ export default {
     generateBill() {
       let totalAmount = 0;
       let gst = 0;
-      if (this.material.toLowerCase() === "cotton" || this.getSelectedBill.materialSelected.toLowerCase() === "cotton") {
-        gst = 20;
-        totalAmount = parseInt(this.amount) + (gst / 100) * this.amount;
+      if (this.currentUserAccountDetails.userType.toLowerCase() === 'manufacturer') {
+        if (this.material.toLowerCase() === "cotton") {
+          gst = 20;
+          totalAmount = Number(this.amount) + (gst / 100) * Number(this.amount);
+        }
+        if (this.material.toLowerCase() === "fabric") {
+          gst = 30;
+          totalAmount = Number(this.amount) + (gst / 100) * Number(this.amount);
+        }
+        if (this.material.toLowerCase() === "plastic") {
+          gst = 40;
+          totalAmount = Number(this.amount) + (gst / 100) * Number(this.amount);
+        }
       }
-      if (this.material.toLowerCase() === "fabric"  || this.getSelectedBill.materialSelected.toLowerCase() === "fabric") {
-        gst = 30;
-        totalAmount = parseInt(this.amount) + (gst / 100) * this.amount;
-      }
-      if (this.material.toLowerCase() === "plastic"  || this.getSelectedBill.materialSelected.toLowerCase() === "plastic") {
-        gst = 40;
-        totalAmount = parseInt(this.amount) + (gst / 100) * this.amount;
+      if (this.currentUserAccountDetails.userType.toLowerCase() === 'wholesaler') {
+        if (this.getSelectedBill.materialSelected.toLowerCase() === "cotton") {
+          gst = 20;
+          totalAmount = Number(this.amount) + (gst / 100) * Number(this.amount);
+        }
+        if (this.getSelectedBill.materialSelected.toLowerCase() === "fabric") {
+          gst = 30;
+          totalAmount = Number(this.amount) + (gst / 100) * Number(this.amount);
+        }
+        if (this.getSelectedBill.materialSelected.toLowerCase() === "plastic") {
+          gst = 40;
+          totalAmount = Number(this.amount) + (gst / 100) * Number(this.amount);
+        }
       }
       return {
         receiverAddress: this.receiverAddress,
@@ -367,14 +385,36 @@ export default {
       });
     },
     sendBill() {
+      let gstAmount = []
+      let amountFormat = this.generateBill.totalAmount - Number(this.amount)
+      let checkInt = Number.isInteger(this.generateBill.totalAmount - Number(this.amount))
+      amountFormat = checkInt ? amountFormat.toString() : amountFormat.toFixed(2)
+      if (this.currentUserAccountDetails.userType.toLowerCase() === 'wholesaler') {
+        const previousGst = Number(this.getSelectedBill.afterGstAmount) - Number(this.getSelectedBill.beforeGstAmount)
+        gstAmount.push(previousGst.toString())
+        console.log(amountFormat)
+      }
+      gstAmount.push(amountFormat)
+      console.log(gstAmount)
       this.$store.dispatch("createBill", {
         receiverAddress: this.receiverAddress,
         material: this.material,
-        beforeGstAmount: this.amount.toString(),
+        beforeGstAmount: this.amount,
         afterGstAmount: this.generateBill.totalAmount.toString(),
+        gstAmount,
+        gstPercent: (this.generateBill.gst * 2).toString(),
         address: this.getAddress
       });
       this.$refs.billForm.reset()
+      // console.log({
+      //   receiverAddress: this.receiverAddress,
+      //   material: this.material,
+      //   beforeGstAmount: this.amount,
+      //   afterGstAmount: this.generateBill.totalAmount.toString(),
+      //   gstAmount,
+      //   gstPercent: (this.generateBill.gst * 2).toString(),
+      //   address: this.getAddress
+      // })
     },
     payAmount (amount, billIssuer, amountSender) {
       console.log({amount: window.web3.utils.toWei(amount,'Ether'), billIssuer: billIssuer, amountSender: amountSender})

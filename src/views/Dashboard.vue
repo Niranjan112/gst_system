@@ -201,7 +201,7 @@
           </v-expansion-panels>
         </v-col>
         <!-- Pending bill section -->
-        <v-col cols="12" sm="6">
+        <v-col cols="12" sm="6" v-show="!(currentUserAccountDetails.userType === 'Manufacturer')">
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header class="indigo darken-4 white--text headline">

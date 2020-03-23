@@ -6,7 +6,13 @@ contract Gst {
     uint256 public billCount = 100;
     mapping(address => Users) public usersMap;
     mapping(uint256 => Bill) public billMap;
-    string[2] public gstAmountValue;
+    mapping(address => Government) public governmentMap;
+
+    struct Government {
+        address payable addr;
+        string govType;
+    }
+
     struct Users {
         uint256 id;
         address payable addr;
@@ -28,6 +34,11 @@ contract Gst {
         address billIssuer;
     }
 
+    event GovernmentAccountCreated (
+        address payable addr,
+        string govType
+    );
+
     event BillCreated (
         uint256 id,
         address receiverAddress,
@@ -48,6 +59,21 @@ contract Gst {
         string gstNumber,
         string userType
     );
+    event BillPaid(
+        uint256 id,
+        address receiverAddress,
+        string materialSelected,
+        string beforeGstAmount,
+        string afterGstAmount,
+        string[] gstAmount,
+        string gstPercent,
+        address billIssuer
+    );
+
+    function createGovernmentAccount(address payable _addr, string memory _govType) public {
+        governmentMap[_addr] = Government(_addr, _govType);
+        emit GovernmentAccountCreated(_addr, _govType);
+    }
 
     function createAccount(
         string memory _firstName,
@@ -115,11 +141,19 @@ contract Gst {
                 );
     }
 
-    function test(address _receiver) public payable{
+    function transferAmountToUser(address _receiver) public payable {
         usersMap[_receiver].addr.transfer(msg.value);
     }
 
-    function test2(uint256 _billId) public view returns(string[] memory) {
+    function transferAmountToSGST(address _sgstAddress) public payable {
+        governmentMap[_sgstAddress].addr.transfer(msg.value);
+    }
+
+    function transferAmountToCGST(address _cgstAddress) public payable {
+        governmentMap[_cgstAddress].addr.transfer(msg.value);
+    }
+
+    function gstAmountArray(uint256 _billId) public view returns(string[] memory) {
         return billMap[_billId].gstAmount;
     }
 }

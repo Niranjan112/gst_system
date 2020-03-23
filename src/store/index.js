@@ -65,18 +65,19 @@ export default new Vuex.Store({
         for( let i = 101 ; i <= billCount; i++) {
           arr.push(await gst.methods.billMap(i).call())
         }
-        gst.methods.test2(104).call().then(r => {
-          console.log(r)
-        })
-        // gst.methods.gstAmountValue(1).call().then(r => {
-        //   console.log(r)
-        // })
+        // gst.methods.governmentMap("0xA7B6c710cb07EcA1C1Dd453029173F0B4922D80C").call().then(a => console.log(a))
+        // gst.methods.transferAmountToSGST("0xA7B6c710cb07EcA1C1Dd453029173F0B4922D80C").send(
+        //   {from: "0xCE69AFA8417C4a48546F85cd02478eedD333f54a", value: 3000000000000000000}
+        // ).then(
+        //   gst.methods.transferAmountToCGST("0xe9c9bC7cB68Bd94eB8fB512c62e1b69A6F03B596").send(
+        //     {from: "0xCE69AFA8417C4a48546F85cd02478eedD333f54a", value: 3000000000000000000}
+        //   )
+        // )
         if (arr) {
           var filteredBill = arr.filter( el => {
             return el.receiverAddress === loadAccount.addr
           })
         }
-        console.log(filteredBill)
         commit('setBillObject', filteredBill)
         if(userCount < 1 || loadAccount.addr != getters.user) {
           commit('showForm', true)

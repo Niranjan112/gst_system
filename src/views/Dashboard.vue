@@ -232,9 +232,9 @@
                         color="green"
                         text-color="white"
                         class="ml-3"
-                        @click="payAmount(bill.beforeGstAmount, bill.billIssuer, bill.receiverAddress)"
+                        @click="payAmount(bill.id, bill.beforeGstAmount, bill.billIssuer, bill.receiverAddress)"
                       >
-                        Pay Now 
+                        Pay Now
                       </v-chip>
                     </v-col>
                   </v-row>
@@ -394,8 +394,10 @@ export default {
         gstAmount.push(previousGst.toString())
         console.log(amountFormat)
       }
+
       gstAmount.push(amountFormat)
       console.log(gstAmount)
+
       this.$store.dispatch("createBill", {
         receiverAddress: this.receiverAddress,
         material: this.material,
@@ -405,6 +407,7 @@ export default {
         gstPercent: (this.generateBill.gst * 2).toString(),
         address: this.getAddress
       });
+
       this.$refs.billForm.reset()
       // console.log({
       //   receiverAddress: this.receiverAddress,
@@ -416,9 +419,19 @@ export default {
       //   address: this.getAddress
       // })
     },
-    payAmount (amount, billIssuer, amountSender) {
-      console.log({amount: window.web3.utils.toWei(amount,'Ether'), billIssuer: billIssuer, amountSender: amountSender})
-      this.$store.dispatch('payBill', {amount: window.web3.utils.toWei(amount,'Ether'), billIssuer: billIssuer, amountSender: amountSender})
+    payAmount (id, amount, billIssuer, amountSender) {
+      // console.log({
+      //   id,
+      //   amount: window.web3.utils.toWei(amount,'Ether'),
+      //   billIssuer,
+      //   amountSender
+      // })
+      this.$store.dispatch('payBill', {
+        id,
+        amount: window.web3.utils.toWei(amount,'Ether'),
+        billIssuer,
+        amountSender
+      })
     }
   }
 };

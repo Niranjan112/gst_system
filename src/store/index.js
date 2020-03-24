@@ -56,30 +56,23 @@ export default new Vuex.Store({
       //Load account
       const networkId = await web3.eth.net.getId()
       const networkData = Gst.networks[networkId]
-      if(networkData) {
+      if (networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
         const userCount = await gst.methods.userCount().call()
         const billCount = await gst.methods.billCount().call()
         const loadAccount = await gst.methods.usersMap(getters.user).call()
         let arr = []
-        for( let i = 101 ; i <= billCount; i++) {
+        for (let i = 101; i <= billCount; i++) {
           arr.push(await gst.methods.billMap(i).call())
         }
-        // gst.methods.governmentMap("0xA7B6c710cb07EcA1C1Dd453029173F0B4922D80C").call().then(a => console.log(a))
-        // gst.methods.transferAmountToSGST("0xA7B6c710cb07EcA1C1Dd453029173F0B4922D80C").send(
-        //   {from: "0xCE69AFA8417C4a48546F85cd02478eedD333f54a", value: 3000000000000000000}
-        // ).then(
-        //   gst.methods.transferAmountToCGST("0xe9c9bC7cB68Bd94eB8fB512c62e1b69A6F03B596").send(
-        //     {from: "0xCE69AFA8417C4a48546F85cd02478eedD333f54a", value: 3000000000000000000}
-        //   )
-        // )
         if (arr) {
-          var filteredBill = arr.filter( el => {
+          var filteredBill = arr.filter(el => {
             return el.receiverAddress === loadAccount.addr
           })
         }
+        console.log(filteredBill)
         commit('setBillObject', filteredBill)
-        if(userCount < 1 || loadAccount.addr != getters.user) {
+        if (userCount < 1 || loadAccount.addr != getters.user) {
           commit('showForm', true)
         }
         else {
@@ -91,12 +84,12 @@ export default new Vuex.Store({
         window.alert('Gst System is on another network')
       }
     },
-    async createProfile({ commit,dispatch }, payload) {
+    async createProfile({ commit, dispatch }, payload) {
       const web3 = window.web3
       //Load account
       const networkId = await web3.eth.net.getId()
       const networkData = Gst.networks[networkId]
-      if(networkData) {
+      if (networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
         console.log(payload, payload.lastName)
         await gst.methods.createAccount(
@@ -115,7 +108,7 @@ export default new Vuex.Store({
       //Load account
       const networkId = await web3.eth.net.getId()
       const networkData = Gst.networks[networkId]
-      if(networkData) {
+      if (networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
         commit('showForm', false)
         console.log(payload.gstAmount)
@@ -127,27 +120,36 @@ export default new Vuex.Store({
           payload.gstAmount,
           payload.gstPercent,
           payload.address
-        ).send({ from: payload.address})
+        ).send({ from: payload.address })
 
-        if(bill) {
+        if (bill) {
           commit('setSnackbar', true)
           bill = null
         }
       }
     },
-    async payBill({ commit }, payload ) {
+    async payBill({ commit }, payload) {
       const web3 = window.web3
-      //Load account
+      //Load accoun
       const networkId = await web3.eth.net.getId()
       const networkData = Gst.networks[networkId]
 
-      if(networkData) {
+      if (networkData) {
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
         commit('showForm', false)
-        console.log(payload)
-        await gst.methods.test(
-          payload.billIssuer
-        ).send({ from: payload.amountSender, value: payload.amount })
+        let gstAmount = await gst.methods.gstAmountArray(parseInt(payload.id)).call()
+        gstAmount = (gstAmount.length > 1 ? Number(gstAmount[1]) / 2 : Number(gstAmount[0]) / 2).toString()
+        console.log(gstAmount)
+        gst.methods.transferAmountToUser(payload.billIssuer)
+          .send({ from: payload.amountSender, value: payload.amount })
+          .then(
+            gst.methods.transferAmountToSGST("0xA7B6c710cb07EcA1C1Dd453029173F0B4922D80C")
+              .send({ from: payload.amountSender, value: window.web3.utils.toWei(gstAmount, 'Ether') })
+              .then(
+                gst.methods.transferAmountToCGST("0xe9c9bC7cB68Bd94eB8fB512c62e1b69A6F03B596")
+                  .send({ from: payload.amountSender, value: window.web3.utils.toWei(gstAmount, 'Ether') })
+              )
+          )
       }
     }
   },

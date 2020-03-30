@@ -91,7 +91,7 @@
     </div>
     <!-- User Account Details -->
     <div v-else align="center" justify="center">
-      <v-row class="mt-12" style="maxWidth: 100%;">
+      <v-row class="mt-6" style="maxWidth: 100%;">
         <v-col>
           <v-expansion-panels>
             <v-expansion-panel>
@@ -154,7 +154,12 @@
                     :rules="[v => !!v || 'Amount is required']"
                     required
                   ></v-text-field>
-                  <v-card v-if="showBill && currentUserAccountDetails.userType === 'Manufacturer'" class="mx-auto green darken-1" max-width="350" outlined>
+                  <v-card
+                    v-if="showBill && currentUserAccountDetails.userType === 'Manufacturer'"
+                    class="mx-auto green darken-1"
+                    max-width="350"
+                    outlined
+                  >
                     <v-card-text class="text-center white--text">
                       <p class="title">Receiver Bill</p>
                       <v-divider :inset="inset" class="white mx-3"></v-divider>
@@ -170,7 +175,12 @@
                     </v-card-text>
                   </v-card>
                   <!-- Wholesaler's bill section -->
-                  <v-card v-if="showBill && currentUserAccountDetails.userType === 'Wholesaler'" class="mx-auto green darken-1" max-width="350" outlined>
+                  <v-card
+                    v-if="showBill && currentUserAccountDetails.userType === 'Wholesaler'"
+                    class="mx-auto green darken-1"
+                    max-width="350"
+                    outlined
+                  >
                     <v-card-text class="text-center white--text">
                       <p class="title">Receiver Bill</p>
                       <v-divider :inset="inset" class="white mx-3"></v-divider>
@@ -211,39 +221,45 @@
                 </template>
               </v-expansion-panel-header>
               <v-expansion-panel-content class="indigo lighten-5" v-if="getBillObject.length > 0">
-                <div
-                  v-for="bill in getBillObject" 
-                  :key="bill.id" 
-                  align="start" 
-                  justify="start" 
-                  class="mt-5"
-                >
-                  <v-row align="center" justify="center">
-                    <v-col cols="9" sm="9">
-                      <v-treeview
-                        dark
-                        class="red darken-2 subtitle-1" 
-                        :items="[{id: bill.id, name: bill.materialSelected, children: [{name: 'From : ' + bill.billIssuer }, {name: 'Material : ' + bill.materialSelected }, {name: 'Total Amount : ' + bill.afterGstAmount + ' ETH' }]}]"
-                      >
-                      </v-treeview>
-                    </v-col>
-                    <v-col cols="3" sm="3">
-                      <v-chip
-                        color="green"
-                        text-color="white"
-                        class="ml-3"
-                        @click="payAmount(bill.id, bill.beforeGstAmount, bill.billIssuer, bill.receiverAddress)"
-                      >
-                        Pay Now
-                      </v-chip>
-                    </v-col>
-                  </v-row>
-                </div>
+                <v-container id="scroll-target" style="max-height: 520px" class="overflow-y-auto">
+                  <div
+                    v-for="bill in getBillObject"
+                    :key="bill.id"
+                    align="start"
+                    justify="start"
+                    class="mt-5"
+                  >
+                    <v-row>
+                      <v-col>
+                        <v-card class="red darken-2 white--text">
+                          <v-card-title class="justify-center">Your Bill</v-card-title>
+                          <v-divider :inset="inset" class="white mx-3"></v-divider>
+                          <v-card-text class="white--text subtitle-1 mx-2 text-center">
+                            <p>From: {{bill.billIssuer}}</p>
+                            <p>Bill ID: {{bill.id}}</p>
+                            <p>Material: {{bill.materialSelected}}</p>
+                            <p>Amount: {{bill.beforeGstAmount}}</p>
+                            <p>CGST:  {{((Number(bill.afterGstAmount) - Number(bill.beforeGstAmount)) / 2).toFixed(2)}} ETH</p>
+                            <p>SGST:  {{((Number(bill.afterGstAmount) - Number(bill.beforeGstAmount)) / 2).toFixed(2)}} ETH</p>
+                            <p>Total Amount: {{bill.afterGstAmount}} ETH</p>
+                          </v-card-text>
+                          <v-divider :inset="inset" class="white mx-3"></v-divider>
+                          <v-card-actions class="justify-center">
+                            <v-btn
+                              color="green"
+                              dark
+                              large
+                              @click="payAmount(bill.id, bill.beforeGstAmount, bill.billIssuer, bill.receiverAddress)"
+                            >Pay Now</v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-col>
+                    </v-row>
+                  </div>
+                </v-container>
               </v-expansion-panel-content>
               <v-expansion-panel-content v-else class="indigo lighten-5">
-                <div class="mt-5 title red--text text--darken-2">
-                  No pending bill available
-                </div>
+                <div class="mt-5 title red--text text--darken-2">No pending bill available</div>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -273,7 +289,7 @@ export default {
       snackbar: false,
       billObject: null,
       expand: false,
-      billSelect: '',
+      billSelect: "",
       namesRules: [
         v => !!v || "This field is required",
         v => /^[a-zA-Z ]{1,30}$/.test(v) || "Only Alphabet allowed"
@@ -311,7 +327,9 @@ export default {
     generateBill() {
       let totalAmount = 0;
       let gst = 0;
-      if (this.currentUserAccountDetails.userType.toLowerCase() === 'manufacturer') {
+      if (
+        this.currentUserAccountDetails.userType.toLowerCase() === "manufacturer"
+      ) {
         if (this.material.toLowerCase() === "cotton") {
           gst = 20;
           totalAmount = Number(this.amount) + (gst / 100) * Number(this.amount);
@@ -325,7 +343,9 @@ export default {
           totalAmount = Number(this.amount) + (gst / 100) * Number(this.amount);
         }
       }
-      if (this.currentUserAccountDetails.userType.toLowerCase() === 'wholesaler') {
+      if (
+        this.currentUserAccountDetails.userType.toLowerCase() === "wholesaler"
+      ) {
         if (this.getSelectedBill.materialSelected.toLowerCase() === "cotton") {
           gst = 20;
           totalAmount = Number(this.amount) + (gst / 100) * Number(this.amount);
@@ -354,23 +374,24 @@ export default {
       return false;
     },
     getBillObject() {
+      console.log(this.$store.getters.getBillObject)
       return this.$store.getters.getBillObject;
     },
     billID() {
-      let arr = []
-      this.$store.getters.getBillObject.forEach((bill) => {
-        arr.push(bill.id)
-      })
-      return arr
+      let arr = [];
+      this.$store.getters.getBillObject.forEach(bill => {
+        arr.push(bill.id);
+      });
+      return arr;
     },
     getSelectedBill() {
-      let bill
-      this.$store.getters.getBillObject.forEach((billData) => {
-        if(parseInt(this.billSelect) === parseInt(billData.id)) {
-          bill =  billData
+      let bill;
+      this.$store.getters.getBillObject.forEach(billData => {
+        if (parseInt(this.billSelect) === parseInt(billData.id)) {
+          bill = billData;
         }
-      })
-      return bill
+      });
+      return bill;
     }
   },
   methods: {
@@ -385,18 +406,26 @@ export default {
       });
     },
     sendBill() {
-      let gstAmount = []
-      let amountFormat = this.generateBill.totalAmount - Number(this.amount)
-      let checkInt = Number.isInteger(this.generateBill.totalAmount - Number(this.amount))
-      amountFormat = checkInt ? amountFormat.toString() : amountFormat.toFixed(2)
-      if (this.currentUserAccountDetails.userType.toLowerCase() === 'wholesaler') {
-        const previousGst = Number(this.getSelectedBill.afterGstAmount) - Number(this.getSelectedBill.beforeGstAmount)
-        gstAmount.push(previousGst.toString())
-        console.log(amountFormat)
+      let gstAmount = [];
+      let amountFormat = this.generateBill.totalAmount - Number(this.amount);
+      let checkInt = Number.isInteger(
+        this.generateBill.totalAmount - Number(this.amount)
+      );
+      amountFormat = checkInt
+        ? amountFormat.toString()
+        : amountFormat.toFixed(2);
+      if (
+        this.currentUserAccountDetails.userType.toLowerCase() === "wholesaler"
+      ) {
+        const previousGst =
+          Number(this.getSelectedBill.afterGstAmount) -
+          Number(this.getSelectedBill.beforeGstAmount);
+        gstAmount.push(previousGst.toString());
+        console.log(amountFormat);
       }
 
-      gstAmount.push(amountFormat)
-      console.log(gstAmount)
+      gstAmount.push(amountFormat);
+      console.log(gstAmount);
 
       this.$store.dispatch("createBill", {
         receiverAddress: this.receiverAddress,
@@ -408,7 +437,7 @@ export default {
         address: this.getAddress
       });
 
-      this.$refs.billForm.reset()
+      this.$refs.billForm.reset();
       // console.log({
       //   receiverAddress: this.receiverAddress,
       //   material: this.material,
@@ -419,19 +448,19 @@ export default {
       //   address: this.getAddress
       // })
     },
-    payAmount (id, amount, billIssuer, amountSender) {
+    payAmount(id, amount, billIssuer, amountSender) {
       // console.log({
       //   id,
       //   amount: window.web3.utils.toWei(amount,'Ether'),
       //   billIssuer,
       //   amountSender
       // })
-      this.$store.dispatch('payBill', {
+      this.$store.dispatch("payBill", {
         id,
-        amount: window.web3.utils.toWei(amount,'Ether'),
+        amount: window.web3.utils.toWei(amount, "Ether"),
         billIssuer,
         amountSender
-      })
+      });
     }
   }
 };

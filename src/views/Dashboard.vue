@@ -229,32 +229,28 @@
                     justify="start"
                     class="mt-5"
                   >
-                    <v-row>
-                      <v-col>
-                        <v-card class="red darken-2 white--text">
-                          <v-card-title class="justify-center">Your Bill</v-card-title>
-                          <v-divider :inset="inset" class="white mx-3"></v-divider>
-                          <v-card-text class="white--text subtitle-1 mx-2 text-center">
-                            <p>From: {{bill.billIssuer}}</p>
-                            <p>Bill ID: {{bill.id}}</p>
-                            <p>Material: {{bill.materialSelected}}</p>
-                            <p>Amount: {{bill.beforeGstAmount}}</p>
-                            <p>CGST:  {{((Number(bill.afterGstAmount) - Number(bill.beforeGstAmount)) / 2).toFixed(2)}} ETH</p>
-                            <p>SGST:  {{((Number(bill.afterGstAmount) - Number(bill.beforeGstAmount)) / 2).toFixed(2)}} ETH</p>
-                            <p>Total Amount: {{bill.afterGstAmount}} ETH</p>
-                          </v-card-text>
-                          <v-divider :inset="inset" class="white mx-3"></v-divider>
-                          <v-card-actions class="justify-center">
-                            <v-btn
-                              color="green"
-                              dark
-                              large
-                              @click="payAmount(bill.id, bill.beforeGstAmount, bill.billIssuer, bill.receiverAddress)"
-                            >Pay Now</v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-col>
-                    </v-row>
+                    <v-card class="red darken-2 white--text" v-show="!bill.paid">
+                      <v-card-title class="justify-center">Your Bill</v-card-title>
+                      <v-divider :inset="inset" class="white mx-3"></v-divider>
+                      <v-card-text class="white--text subtitle-1 mx-2 text-center">
+                        <p>From: {{bill.billIssuer}}</p>
+                        <p>Bill ID: {{bill.id}}</p>
+                        <p>Material: {{bill.materialSelected}}</p>
+                        <p>Amount: {{bill.beforeGstAmount}}</p>
+                        <p>CGST: {{((Number(bill.afterGstAmount) - Number(bill.beforeGstAmount)) / 2).toFixed(2)}} ETH</p>
+                        <p>SGST: {{((Number(bill.afterGstAmount) - Number(bill.beforeGstAmount)) / 2).toFixed(2)}} ETH</p>
+                        <p>Total Amount: {{bill.afterGstAmount}} ETH</p>
+                      </v-card-text>
+                      <v-divider :inset="inset" class="white mx-3"></v-divider>
+                      <v-card-actions class="justify-center">
+                        <v-btn
+                          color="green"
+                          dark
+                          large
+                          @click="payAmount(bill.id, bill.beforeGstAmount, bill.billIssuer, bill.receiverAddress)"
+                        >Pay Now</v-btn>
+                      </v-card-actions>
+                    </v-card>
                   </div>
                 </v-container>
               </v-expansion-panel-content>
@@ -374,7 +370,6 @@ export default {
       return false;
     },
     getBillObject() {
-      console.log(this.$store.getters.getBillObject)
       return this.$store.getters.getBillObject;
     },
     billID() {
@@ -457,10 +452,12 @@ export default {
       // })
       this.$store.dispatch("payBill", {
         id,
-        amount: window.web3.utils.toWei(amount, "Ether"),
+        amount,
         billIssuer,
         amountSender
-      });
+      })
+
+      console.log("hello")
     }
   }
 };

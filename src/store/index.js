@@ -128,7 +128,7 @@ export default new Vuex.Store({
         }
       }
     },
-    async payBill({ commit }, payload) {
+    async payBill({ commit, dispatch }, payload) {
       const web3 = window.web3
       //Load accoun
       const networkId = await web3.eth.net.getId()
@@ -138,18 +138,41 @@ export default new Vuex.Store({
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
         commit('showForm', false)
         let gstAmount = await gst.methods.gstAmountArray(parseInt(payload.id)).call()
-        gstAmount = (gstAmount.length > 1 ? Number(gstAmount[1]) / 2 : Number(gstAmount[0]) / 2).toString()
+        let gstSub = Number(gstAmount[1]) - Number(gstAmount[0]);
+        payload.amount = (Number(payload.amount) + Number(gstAmount[0])).toString()
+        gstAmount = (gstAmount.length > 1 ? gstSub / 2 : Number(gstAmount[0]) / 2).toString()
         console.log(gstAmount)
-        gst.methods.transferAmountToUser(payload.billIssuer)
-          .send({ from: payload.amountSender, value: payload.amount })
-          .then(
-            gst.methods.transferAmountToSGST("0xA7B6c710cb07EcA1C1Dd453029173F0B4922D80C")
-              .send({ from: payload.amountSender, value: window.web3.utils.toWei(gstAmount, 'Ether') })
-              .then(
-                gst.methods.transferAmountToCGST("0xe9c9bC7cB68Bd94eB8fB512c62e1b69A6F03B596")
-                  .send({ from: payload.amountSender, value: window.web3.utils.toWei(gstAmount, 'Ether') })
-              )
-          )
+        await gst.methods.transferAmountToUser(payload.billIssuer)
+          .send({ from: payload.amountSender, value: window.web3.utils.toWei(payload.amount, "Ether") })
+
+        await gst.methods.transferAmountToSGST("0xA7B6c710cb07EcA1C1Dd453029173F0B4922D80C")
+          .send({ from: payload.amountSender, value: window.web3.utils.toWei(gstAmount, 'Ether') })
+        
+        await gst.methods.transferAmountToCGST("0xe9c9bC7cB68Bd94eB8fB512c62e1b69A6F03B596")
+          .send({ from: payload.amountSender, value: window.web3.utils.toWei(gstAmount, 'Ether') })
+        
+        await gst.methods.paidBill(parseInt(payload.id), true)
+          .send({ from: payload.amountSender })
+
+        dispatch('loadBlockchainData')
+        // gst.methods.transferAmountToUser(payload.billIssuer)
+        //   .send({ from: payload.amountSender, value: window.web3.utils.toWei(payload.amount, "Ether") })
+        //   .then(
+        //     gst.methods.transferAmountToSGST("0xA7B6c710cb07EcA1C1Dd453029173F0B4922D80C")
+        //       .send({ from: payload.amountSender, value: window.web3.utils.toWei(gstAmount, 'Ether') })
+        //       .then(
+        //         gst.methods.transferAmountToCGST("0xe9c9bC7cB68Bd94eB8fB512c62e1b69A6F03B596")
+        //           .send({ from: payload.amountSender, value: window.web3.utils.toWei(gstAmount, 'Ether') })
+        //           .then(
+        //             gst.methods.paidBill(parseInt(payload.id), true)
+        //               .send({ from: payload.amountSender }).then(
+        //                 router.push('home')
+        //               )
+        //           ).then(
+        //             dispatch('loadBlockchainData')
+        //           )
+        //       )
+        //   )
       }
     }
   },

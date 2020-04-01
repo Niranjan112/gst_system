@@ -31,6 +31,7 @@ contract Gst {
         string afterGstAmount;
         string[] gstAmount;
         string gstPercent;
+        bool paid;
         address billIssuer;
     }
 
@@ -47,6 +48,7 @@ contract Gst {
         string afterGstAmount,
         string[] gstAmount,
         string gstPercent,
+        bool paid,
         address billIssuer
     );
 
@@ -126,6 +128,7 @@ contract Gst {
                 _afterGstAmount,
                 _gstAmount,
                 _gstPercent,
+                false,
                 _billIssuer
                 );
 
@@ -137,6 +140,7 @@ contract Gst {
                 _afterGstAmount,
                 _gstAmount,
                 _gstPercent,
+                false,
                 _billIssuer
                 );
     }
@@ -155,5 +159,8 @@ contract Gst {
 
     function gstAmountArray(uint256 _billId) public view returns(string[] memory) {
         return billMap[_billId].gstAmount;
+    }
+    function paidBill(uint256 _billID, bool _paidStatus) public {
+        billMap[_billID].paid = _paidStatus;
     }
 }

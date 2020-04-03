@@ -220,7 +220,7 @@
                   <v-icon color="white">$expand</v-icon>
                 </template>
               </v-expansion-panel-header>
-              <v-expansion-panel-content class="indigo lighten-5" v-if="getBillObject.length > 0">
+              <v-expansion-panel-content class="indigo lighten-5" v-if="checkPendingBill">
                 <v-container id="scroll-target" style="max-height: 520px" class="overflow-y-auto">
                   <div
                     v-for="bill in getBillObject"
@@ -261,6 +261,41 @@
           </v-expansion-panels>
         </v-col>
       </v-row>
+      <v-row style="maxWidth: 100%;">
+        <v-col>
+          <v-expansion-panels>
+            <v-expansion-panel>
+              <v-expansion-panel-header class="indigo darken-4 white--text headline">
+                Transaction History
+                <template v-slot:actions>
+                  <v-icon color="white">$expand</v-icon>
+                </template>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content class="indigo lighten-5">
+                <div class="mt-5">
+                  <v-row justify="end">
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="search"
+                        append-icon="mdi-magnify"
+                        label="Search"
+                        color="indigo darken-4"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-data-table
+                    :headers="headers"
+                    :items="billDataTable"
+                    :items-per-page="5"
+                    :search="search"
+                    class="elevation-1"
+                  ></v-data-table>
+                </div>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-col>
+      </v-row>
     </div>
   </v-container>
 </template>
@@ -286,6 +321,7 @@ export default {
       billObject: null,
       expand: false,
       billSelect: "",
+      search: '',
       namesRules: [
         v => !!v || "This field is required",
         v => /^[a-zA-Z ]{1,30}$/.test(v) || "Only Alphabet allowed"
@@ -303,6 +339,20 @@ export default {
       addressRules: [
         v => /^0x[a-fA-F0-9]{40}$/.test(v) || "Address is not valid"
       ],
+      headers: [
+        {
+          text: 'Bill ID',
+          align: 'start',
+          sortable: true,
+          value: 'id',
+        },
+        {text: 'From', value: 'from'},
+        {text: 'To', value: 'to'},
+        {text: 'Product', value: 'product'},
+        {text: 'Total Amount', value: 'totalAmount'},
+        {text: 'Payment Status', value:'paymentStatus'}
+      ],
+      Bills: this.billDataTable,
       maxwidth: 80
     };
   },
@@ -387,6 +437,33 @@ export default {
         }
       });
       return bill;
+    },
+    billDataTable() {
+      let bill = []
+      this.$store.getters.getBillObject.forEach( billData => {
+        if(billData.paid) {
+          bill.push(
+            {
+              id: billData.id,
+              from: billData.billIssuer,
+              to: billData.receiverAddress,
+              product: billData.materialSelected,
+              totalAmount: billData.afterGstAmount,
+              paymentStatus: 'Completed'
+            }
+          )
+        }
+      })
+      return bill
+    },
+    checkPendingBill() {
+      let boolValue = false
+      this.$store.getters.getBillObject.forEach( billData => {
+        if(!billData.paid) {
+          boolValue = true
+        }
+      })
+      return boolValue
     }
   },
   methods: {
@@ -455,9 +532,7 @@ export default {
         amount,
         billIssuer,
         amountSender
-      })
-
-      console.log("hello")
+      });
     }
   }
 };

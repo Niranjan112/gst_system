@@ -12,3 +12,8 @@ new Vue({
   vuetify,
   render: h => h(App)
 }).$mount('#app')
+
+window.ethereum.on('accountsChanged', () => {
+  store.dispatch('connectMetamask');
+  store.dispatch('loadBlockchainData');
+})

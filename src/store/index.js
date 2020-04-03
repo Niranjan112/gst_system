@@ -139,8 +139,8 @@ export default new Vuex.Store({
         commit('showForm', false)
         let gstAmount = await gst.methods.gstAmountArray(parseInt(payload.id)).call()
         let gstSub = Number(gstAmount[1]) - Number(gstAmount[0]);
-        payload.amount = (Number(payload.amount) + Number(gstAmount[0])).toString()
-        gstAmount = (gstAmount.length > 1 ? gstSub / 2 : Number(gstAmount[0]) / 2).toString()
+        payload.amount = (Number(payload.amount) + Number(gstAmount[0])).toFixed()
+        gstAmount = (gstAmount.length > 1 ? gstSub / 2 : Number(gstAmount[0]) / 2).toFixed(2)
         console.log(gstAmount)
         await gst.methods.transferAmountToUser(payload.billIssuer)
           .send({ from: payload.amountSender, value: window.web3.utils.toWei(payload.amount, "Ether") })

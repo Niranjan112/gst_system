@@ -12,7 +12,8 @@ export default new Vuex.Store({
     showForm: null,
     currentUserObject: null,
     snackbar: null,
-    billObject: null
+    billObject: null,
+    manufacturerBillObject: null
   },
   mutations: {
     setUser(state, account) {
@@ -32,6 +33,9 @@ export default new Vuex.Store({
     },
     setBillObject(state, bill) {
       state.billObject = bill
+    },
+    setManufacturerBillObject(state, bill) {
+      state.manufacturerBillObject = bill
     }
   },
   actions: {
@@ -70,6 +74,17 @@ export default new Vuex.Store({
             return el.receiverAddress === loadAccount.addr
           })
         }
+        if(loadAccount.userType === 'Manufacturer') {
+          let manufacturerBillArray = []
+          arr.forEach(bill => {
+            if(bill.billIssuer === loadAccount.addr) {
+              manufacturerBillArray.push(bill)
+            }
+          })
+          console.log(manufacturerBillArray)
+          commit('setManufacturerBillObject', manufacturerBillArray)
+        }
+        console.log(loadAccount.userType)
         console.log(filteredBill)
         commit('setBillObject', filteredBill)
         if (userCount < 1 || loadAccount.addr != getters.user) {
@@ -138,8 +153,11 @@ export default new Vuex.Store({
         const gst = new web3.eth.Contract(Gst.abi, networkData.address)
         commit('showForm', false)
         let gstAmount = await gst.methods.gstAmountArray(parseInt(payload.id)).call()
-        let gstSub = Number(gstAmount[1]) - Number(gstAmount[0]);
-        payload.amount = (Number(payload.amount) + Number(gstAmount[0])).toFixed()
+        console.log(gstAmount, payload.amount)
+        let gstSub = Number(gstAmount[1]) - Number(gstAmount[0])
+        console.log(gstSub)
+        payload.amount = gstAmount.length > 1 ? (Number(payload.amount) + Number(gstAmount[0])).toFixed(2) : Number(payload.amount).toFixed(2)
+        console.log(payload.amount)
         gstAmount = (gstAmount.length > 1 ? gstSub / 2 : Number(gstAmount[0]) / 2).toFixed(2)
         console.log(gstAmount)
         await gst.methods.transferAmountToUser(payload.billIssuer)
@@ -191,6 +209,9 @@ export default new Vuex.Store({
     },
     getBillObject(state) {
       return state.billObject
+    },
+    getManufacturerBillObject(state) {
+      return state.manufacturerBillObject
     }
   }
 })

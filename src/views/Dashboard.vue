@@ -15,7 +15,7 @@
             </v-card-title>
             <v-card-text class="indigo lighten-5">
               <v-container>
-                <v-form v-model="isProfileFormValid">
+                <v-form v-model="isProfileFormValid" ref="profileForm">
                   <v-row>
                     <v-col cols="12" sm="6">
                       <v-text-field
@@ -50,16 +50,6 @@
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12">
-                      <v-text-field
-                        label="GST Number"
-                        v-model="gstNumber"
-                        color="indigo darken-4"
-                        :rules="gstRules"
-                        prepend-icon="subject"
-                        required
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
                       <v-select
                         :items="['Manufacturer','Wholesaler','Customer']"
                         label="User Type"
@@ -69,6 +59,16 @@
                         prepend-icon="group"
                         required
                       ></v-select>
+                    </v-col>
+                    <v-col cols="12" v-if="userType !== '' && userType !== 'Customer'">
+                      <v-text-field
+                        label="GST Number"
+                        v-model="gstNumber"
+                        color="indigo darken-4"
+                        :rules="gstRules"
+                        prepend-icon="subject"
+                        required
+                      ></v-text-field>
                     </v-col>
                   </v-row>
                 </v-form>
@@ -106,7 +106,7 @@
               <v-expansion-panel-content class="indigo lighten-5">
                 <v-row class="title text-center">
                   <v-col cols="12" sm="4">Email ID: {{currentUserAccountDetails.email}}</v-col>
-                  <v-col cols="12" sm="4">GST Number: {{currentUserAccountDetails.gstNumber}}</v-col>
+                  <v-col cols="12" sm="4" v-if="currentUserAccountDetails.userType !== 'Customer'">GST Number: {{currentUserAccountDetails.gstNumber}}</v-col>
                   <v-col cols="12" sm="4">User Type: {{currentUserAccountDetails.userType}}</v-col>
                 </v-row>
               </v-expansion-panel-content>
@@ -116,7 +116,7 @@
       </v-row>
       <!-- Generate Bill section -->
       <v-row style="maxWidth: 100%;">
-        <v-col cols="12" sm="6" v-show="!(currentUserAccountDetails.userType == 'Customer')">
+        <v-col cols="12" sm="6" v-if="!(currentUserAccountDetails.userType == 'Customer')">
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header class="indigo darken-4 white--text headline">
@@ -211,7 +211,7 @@
           </v-expansion-panels>
         </v-col>
         <!-- Pending bill section -->
-        <v-col cols="12" sm="6" v-show="!(currentUserAccountDetails.userType === 'Manufacturer')">
+        <v-col cols="12" sm="6" v-if="!(currentUserAccountDetails.userType === 'Manufacturer')">
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header class="indigo darken-4 white--text headline">
@@ -229,7 +229,7 @@
                     justify="start"
                     class="mt-5"
                   >
-                    <v-card class="red darken-2 white--text" v-show="!bill.paid">
+                    <v-card class="red darken-2 white--text" v-if="!bill.paid">
                       <v-card-title class="justify-center">Your Bill</v-card-title>
                       <v-divider :inset="inset" class="white mx-3"></v-divider>
                       <v-card-text class="white--text subtitle-1 mx-2 text-center">
@@ -321,7 +321,7 @@ export default {
       billObject: null,
       expand: false,
       billSelect: "",
-      search: '',
+      search: "",
       namesRules: [
         v => !!v || "This field is required",
         v => /^[a-zA-Z ]{1,30}$/.test(v) || "Only Alphabet allowed"
@@ -341,16 +341,16 @@ export default {
       ],
       headers: [
         {
-          text: 'Bill ID',
-          align: 'start',
+          text: "Bill ID",
+          align: "start",
           sortable: true,
-          value: 'id',
+          value: "id"
         },
-        {text: 'From', value: 'from'},
-        {text: 'To', value: 'to'},
-        {text: 'Product', value: 'product'},
-        {text: 'Total Amount', value: 'totalAmount'},
-        {text: 'Payment Status', value:'paymentStatus'}
+        { text: "From", value: "from" },
+        { text: "To", value: "to" },
+        { text: "Product", value: "product" },
+        { text: "Total Amount", value: "totalAmount" },
+        { text: "Payment Status", value: "paymentStatus" }
       ],
       Bills: this.billDataTable,
       maxwidth: 80
@@ -439,35 +439,52 @@ export default {
       return bill;
     },
     billDataTable() {
-      let bill = []
-      this.$store.getters.getBillObject.forEach( billData => {
-        if(billData.paid) {
-          bill.push(
-            {
+      let bill = [];
+      if(this.currentUserAccountDetails.userType === 'Manufacturer') {
+        this.$store.getters.getManufacturerBillObject.forEach(billData => {
+          if(billData.paid) {
+            bill.push({
+            id: billData.id,
+            from: billData.receiverAddress,
+            to: billData.billIssuer,
+            product: billData.materialSelected,
+            totalAmount: billData.afterGstAmount,
+            paymentStatus: "Completed"
+          });
+          }
+        })
+      } else {
+          this.$store.getters.getBillObject.forEach(billData => {
+          if (billData.paid) {
+            bill.push({
               id: billData.id,
               from: billData.billIssuer,
               to: billData.receiverAddress,
               product: billData.materialSelected,
               totalAmount: billData.afterGstAmount,
-              paymentStatus: 'Completed'
-            }
-          )
-        }
-      })
-      return bill
+              paymentStatus: "Completed"
+            });
+          }
+        });
+      }
+      
+      return bill;
     },
     checkPendingBill() {
-      let boolValue = false
-      this.$store.getters.getBillObject.forEach( billData => {
-        if(!billData.paid) {
-          boolValue = true
+      let boolValue = false;
+      this.$store.getters.getBillObject.forEach(billData => {
+        if (!billData.paid) {
+          boolValue = true;
         }
-      })
-      return boolValue
+      });
+      return boolValue;
     }
   },
   methods: {
     save() {
+      if(!this.gstNumber) {
+        this.gstNumber = 'none'
+      }
       this.$store.dispatch("createProfile", {
         firstName: this.firstName,
         lastName: this.lastName,
@@ -476,6 +493,8 @@ export default {
         userType: this.userType,
         address: this.getAddress
       });
+
+      this.$refs.profileForm.reset();
     },
     sendBill() {
       let gstAmount = [];

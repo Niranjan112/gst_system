@@ -440,8 +440,8 @@ export default {
     },
     billDataTable() {
       let bill = [];
-      if(this.currentUserAccountDetails.userType === 'Manufacturer') {
-        this.$store.getters.getManufacturerBillObject.forEach(billData => {
+      if(this.currentUserAccountDetails.userType === 'Manufacturer' || this.currentUserAccountDetails.userType === 'Wholesaler') {
+        this.$store.getters.getReceivePaymentObject.forEach(billData => {
           if(billData.paid) {
             bill.push({
             id: billData.id,
@@ -449,20 +449,21 @@ export default {
             to: billData.billIssuer,
             product: billData.materialSelected,
             totalAmount: billData.afterGstAmount,
-            paymentStatus: "Completed"
+            paymentStatus: "Received"
           });
           }
         })
-      } else {
-          this.$store.getters.getBillObject.forEach(billData => {
+      }
+      if(this.currentUserAccountDetails.userType === 'Wholesaler' || this.currentUserAccountDetails.userType === 'Customer') {
+        this.$store.getters.getBillObject.forEach(billData => {
           if (billData.paid) {
             bill.push({
               id: billData.id,
-              from: billData.billIssuer,
-              to: billData.receiverAddress,
+              from: billData.receiverAddress,
+              to: billData.billIssuer,
               product: billData.materialSelected,
               totalAmount: billData.afterGstAmount,
-              paymentStatus: "Completed"
+              paymentStatus: "Paid"
             });
           }
         });

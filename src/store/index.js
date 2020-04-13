@@ -13,7 +13,7 @@ export default new Vuex.Store({
     currentUserObject: null,
     snackbar: null,
     billObject: null,
-    manufacturerBillObject: null
+    receivePaymentObject: null
   },
   mutations: {
     setUser(state, account) {
@@ -34,8 +34,8 @@ export default new Vuex.Store({
     setBillObject(state, bill) {
       state.billObject = bill
     },
-    setManufacturerBillObject(state, bill) {
-      state.manufacturerBillObject = bill
+    setReceivePaymentObject(state, bill) {
+      state.receivePaymentObject = bill
     }
   },
   actions: {
@@ -74,17 +74,16 @@ export default new Vuex.Store({
             return el.receiverAddress === loadAccount.addr
           })
         }
-        if(loadAccount.userType === 'Manufacturer') {
-          let manufacturerBillArray = []
+        if(loadAccount.userType === 'Manufacturer' || loadAccount.userType === 'Wholesaler') {
+          let receivePaymentBillArray = []
           arr.forEach(bill => {
             if(bill.billIssuer === loadAccount.addr) {
-              manufacturerBillArray.push(bill)
+              receivePaymentBillArray.push(bill)
             }
           })
-          console.log(manufacturerBillArray)
-          commit('setManufacturerBillObject', manufacturerBillArray)
+          console.log(receivePaymentBillArray)
+          commit('setReceivePaymentObject', receivePaymentBillArray)
         }
-        console.log(loadAccount.userType)
         console.log(filteredBill)
         commit('setBillObject', filteredBill)
         if (userCount < 1 || loadAccount.addr != getters.user) {
@@ -210,8 +209,8 @@ export default new Vuex.Store({
     getBillObject(state) {
       return state.billObject
     },
-    getManufacturerBillObject(state) {
-      return state.manufacturerBillObject
+    getReceivePaymentObject(state) {
+      return state.receivePaymentObject
     }
   }
 })

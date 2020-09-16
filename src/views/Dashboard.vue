@@ -448,7 +448,7 @@ export default {
             from: billData.receiverAddress,
             to: billData.billIssuer,
             product: billData.materialSelected,
-            totalAmount: billData.afterGstAmount,
+            totalAmount: this.currentUserAccountDetails.userType === 'Wholesaler' ? (Number(billData.afterGstAmount) - Number(billData.beforeGstAmount)) / 2 + Number(billData.beforeGstAmount):billData.beforeGstAmount,
             paymentStatus: "Received"
           });
           }

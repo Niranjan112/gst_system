@@ -8772,8 +8772,7 @@
             }
           ],
           "name": "AccountCreated",
-          "type": "event",
-          "signature": "0x8c4aad3c0960e4ceb0dcda2c906d32232fdc3ca01b231793d5688534fda53614"
+          "type": "event"
         },
         "0xb3b146b7ffc458adac1436d8ecf9955666210dcacb2f4d2091aa18b028c2b95a": {
           "anonymous": false,
@@ -8816,8 +8815,7 @@
             }
           ],
           "name": "AccountCreated",
-          "type": "event",
-          "signature": "0xb3b146b7ffc458adac1436d8ecf9955666210dcacb2f4d2091aa18b028c2b95a"
+          "type": "event"
         },
         "0xa0774eba77c5d25448d6047058ac015a21453489c8bdaee257f2afa5d171dff4": {
           "anonymous": false,
@@ -8848,8 +8846,7 @@
             }
           ],
           "name": "BillCreated",
-          "type": "event",
-          "signature": "0xa0774eba77c5d25448d6047058ac015a21453489c8bdaee257f2afa5d171dff4"
+          "type": "event"
         },
         "0xad0a109165844f3ce2ba48b2f425670549824d63ce74deed36fb2692ac627343": {
           "anonymous": false,
@@ -8886,8 +8883,7 @@
             }
           ],
           "name": "BillCreated",
-          "type": "event",
-          "signature": "0xad0a109165844f3ce2ba48b2f425670549824d63ce74deed36fb2692ac627343"
+          "type": "event"
         },
         "0xc96b88cad68c8879fb370ded6ddfcd140426ad3b0751fdd4df7b7d84701aeb47": {
           "anonymous": false,
@@ -8930,8 +8926,7 @@
             }
           ],
           "name": "BillCreated",
-          "type": "event",
-          "signature": "0xc96b88cad68c8879fb370ded6ddfcd140426ad3b0751fdd4df7b7d84701aeb47"
+          "type": "event"
         },
         "0x88042d3ed1e1e6f3d4333c8a87d98d8b77c0b8f2132024c0e6b126d5aa80c954": {
           "anonymous": false,
@@ -8986,8 +8981,7 @@
             }
           ],
           "name": "BillCreated",
-          "type": "event",
-          "signature": "0x88042d3ed1e1e6f3d4333c8a87d98d8b77c0b8f2132024c0e6b126d5aa80c954"
+          "type": "event"
         },
         "0x2bed57f0c845a3405fbcfaf8b81260bae55c8af4943e87f5d84d9b8ec6b7b594": {
           "anonymous": false,
@@ -9042,8 +9036,7 @@
             }
           ],
           "name": "BillCreated",
-          "type": "event",
-          "signature": "0x2bed57f0c845a3405fbcfaf8b81260bae55c8af4943e87f5d84d9b8ec6b7b594"
+          "type": "event"
         },
         "0x9accccc9b109bbe529001e10bceed07d40cf7523dd0be99c515ac56dc56b698a": {
           "anonymous": false,
@@ -9098,8 +9091,7 @@
             }
           ],
           "name": "BillPaid",
-          "type": "event",
-          "signature": "0x9accccc9b109bbe529001e10bceed07d40cf7523dd0be99c515ac56dc56b698a"
+          "type": "event"
         },
         "0xe399e430f6292e834eaf6b7ac8d72b6d6c6ebc8785787655a10380cdeee48d54": {
           "anonymous": false,
@@ -9118,8 +9110,7 @@
             }
           ],
           "name": "GovernmentAccountCreated",
-          "type": "event",
-          "signature": "0xe399e430f6292e834eaf6b7ac8d72b6d6c6ebc8785787655a10380cdeee48d54"
+          "type": "event"
         },
         "0x5c2af1631ab808218ebf5ce8a18ca61b4dab66dfbd62be7ca3594543b39e7c6e": {
           "anonymous": false,
@@ -9180,8 +9171,7 @@
             }
           ],
           "name": "BillCreated",
-          "type": "event",
-          "signature": "0x5c2af1631ab808218ebf5ce8a18ca61b4dab66dfbd62be7ca3594543b39e7c6e"
+          "type": "event"
         }
       },
       "links": {},
@@ -9189,8 +9179,8 @@
       "transactionHash": "0x87f7fcad6aea3b8ef3893a785cbef84d942f8233fcb2c7aced00695c81def5eb"
     }
   },
-  "schemaVersion": "3.0.21",
-  "updatedAt": "2020-04-13T10:58:38.586Z",
+  "schemaVersion": "3.2.5",
+  "updatedAt": "2020-09-16T15:35:07.345Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}
